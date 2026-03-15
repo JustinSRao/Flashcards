@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <p class="eyebrow">Node.js Flashcards</p>
+        <h1>Study from JSON-backed flashcards.</h1>
+        <p class="subcopy">
+          Cards are stored in <code>data/flashcards.json</code> inside this
+          directory.
+        </p>
+      </section>
+
+      <section class="panel">
+        <form id="card-form" class="card-form">
+          <h2>Add or edit a card</h2>
+          <input type="hidden" id="card-id" />
+          <label>
+            Deck
+            <input id="deck" name="deck" type="text" placeholder="General" />
+          </label>
+          <label>
+            Question
+            <textarea
+              id="question"
+              name="question"
+              rows="3"
+              placeholder="Enter the prompt"
+              required
+            ></textarea>
+          </label>
+          <label>
+            Answer
+            <textarea
+              id="answer"
+              name="answer"
+              rows="4"
+              placeholder="Enter the answer"
+              required
+            ></textarea>
+          </label>
+          <div class="actions">
+            <button type="submit" id="save-button">Save card</button>
+            <button type="button" id="reset-button" class="secondary">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="toolbar">
+          <h2>Your cards</h2>
+          <div class="filters">
+            <input id="search" type="search" placeholder="Search cards" />
+            <select id="deck-filter" aria-label="Filter by deck">
+              <option value="">All decks</option>
+            </select>
+          </div>
+        </div>
+        <p id="status" class="status"></p>
+        <div id="cards" class="cards"></div>
+      </section>
+    </main>
+
+    <template id="card-template">
+      <article class="flashcard">
+        <div class="flashcard-header">
+          <span class="deck"></span>
+          <div class="card-buttons">
+            <button class="secondary edit-button">Edit</button>
+            <button class="danger delete-button">Delete</button>
+          </div>
+        </div>
+        <h3 class="question"></h3>
+        <p class="answer"></p>
+      </article>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

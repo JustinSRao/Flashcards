@@ -1,0 +1,207 @@
+:root {
+  --bg: #f3efe6;
+  --panel: rgba(255, 252, 247, 0.88);
+  --border: #c7baa3;
+  --text: #2d2418;
+  --muted: #6a5c49;
+  --accent: #a3472f;
+  --accent-dark: #7d331e;
+  --danger: #7d2230;
+  --shadow: 0 24px 60px rgba(72, 48, 18, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(211, 154, 101, 0.35), transparent 40%),
+    linear-gradient(180deg, #efe3cf 0%, var(--bg) 100%);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.hero {
+  padding: 1rem 0 1.5rem;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.hero h1 {
+  margin: 0.4rem 0;
+  font-size: clamp(2.2rem, 5vw, 4.8rem);
+  line-height: 0.95;
+}
+
+.subcopy {
+  color: var(--muted);
+  max-width: 44rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid rgba(199, 186, 163, 0.75);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
+  margin-top: 1.2rem;
+  backdrop-filter: blur(14px);
+}
+
+.card-form,
+.toolbar {
+  display: grid;
+  gap: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+}
+
+.filters input,
+.filters select {
+  flex: 1;
+}
+
+.card-form label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+input,
+textarea,
+button {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.actions,
+.toolbar,
+.flashcard-header,
+.card-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+button {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  color: #fff8f2;
+  background: var(--accent);
+}
+
+button:hover {
+  background: var(--accent-dark);
+}
+
+button.secondary {
+  background: #d9ccb7;
+  color: var(--text);
+}
+
+button.danger {
+  background: var(--danger);
+}
+
+.status,
+.empty {
+  color: var(--muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.flashcard {
+  min-height: 220px;
+  border-radius: 20px;
+  padding: 1rem;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(243, 232, 215, 0.94));
+  border: 1px solid rgba(199, 186, 163, 0.9);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  cursor: pointer;
+}
+
+.flashcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(88, 62, 29, 0.12);
+}
+
+.flashcard .deck {
+  display: inline-flex;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(163, 71, 47, 0.12);
+  color: var(--accent-dark);
+  font-size: 0.85rem;
+}
+
+.flashcard .answer {
+  display: none;
+  color: var(--muted);
+}
+
+.flashcard.revealed .answer {
+  display: block;
+}
+
+.flashcard.revealed .question {
+  color: var(--accent-dark);
+}
+
+@media (max-width: 700px) {
+  .actions,
+  .toolbar,
+  .flashcard-header,
+  .card-buttons,
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-shell {
+    width: min(100% - 1rem, 1100px);
+  }
+}

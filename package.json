@@ -1,0 +1,10 @@
+{
+  "name": "flashcard-app",
+  "version": "1.0.0",
+  "description": "Simple flashcard app with JSON file storage.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT"
+}
