@@ -27,11 +27,22 @@
           </label>
           <label>
             Question
+            <div id="image-preview" class="image-preview hidden" aria-live="polite">
+              <img id="image-preview-img" alt="Pasted flashcard attachment preview" />
+              <button
+                type="button"
+                id="remove-image"
+                class="image-remove"
+                aria-label="Remove pasted image"
+              >
+                ×
+              </button>
+            </div>
             <textarea
               id="question"
               name="question"
               rows="3"
-              placeholder="Enter the prompt"
+              placeholder="Enter the prompt. You can also paste an image here."
               required
             ></textarea>
           </label>
@@ -70,7 +81,18 @@
     <template id="card-template">
       <article class="flashcard">
         <div class="flashcard-header">
-          <span class="deck"></span>
+          <div class="card-meta">
+            <span class="deck"></span>
+            <div class="card-image-wrap hidden">
+              <button
+                type="button"
+                class="card-image-button"
+                aria-label="Open attached image"
+              >
+                <img class="card-image-thumb" alt="Flashcard attachment thumbnail" />
+              </button>
+            </div>
+          </div>
           <div class="card-buttons">
             <button class="secondary edit-button">Edit</button>
             <button class="danger delete-button">Delete</button>
@@ -80,6 +102,11 @@
         <p class="answer"></p>
       </article>
     </template>
+
+    <div id="image-lightbox" class="lightbox hidden" aria-hidden="true">
+      <div class="lightbox-backdrop"></div>
+      <img id="lightbox-image" class="lightbox-image" alt="Expanded flashcard attachment" />
+    </div>
 
     <script src="/app.js"></script>
   </body>

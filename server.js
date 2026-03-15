@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
 const DATA_DIR = path.join(ROOT_DIR, "data");
+const PHOTOS_DIR = path.join(DATA_DIR, "photos");
 const CARDS_FILE = path.join(DATA_DIR, "flashcards.json");
 
 const MIME_TYPES = {
@@ -14,10 +15,17 @@ const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".bmp": "image/bmp",
 };
 
 async function ensureStorage() {
   await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.mkdir(PHOTOS_DIR, { recursive: true });
 
   try {
     await fs.access(CARDS_FILE);
@@ -63,7 +71,7 @@ async function parseBody(req) {
 
     req.on("data", (chunk) => {
       body += chunk;
-      if (body.length > 1e6) {
+      if (body.length > 5e6) {
         reject(new Error("Request body too large"));
       }
     });
@@ -84,12 +92,84 @@ function sanitizeCard(input) {
   const question = String(input.question || "").trim();
   const answer = String(input.answer || "").trim();
   const deck = String(input.deck || "General").trim() || "General";
+  const image = typeof input.image === "string" ? input.image.trim() : "";
 
   if (!question || !answer) {
     return { error: "Question and answer are required." };
   }
 
-  return { question, answer, deck };
+  if (
+    image &&
+    !/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(image) &&
+    !image.startsWith("/photos/")
+  ) {
+    return { error: "Attached image must be a valid pasted image." };
+  }
+
+  return { question, answer, deck, image };
+}
+
+function parseDataUrl(dataUrl) {
+  const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+
+  if (!match) {
+    throw new Error("Attached image must be a valid pasted image.");
+  }
+
+  return {
+    mimeType: match[1],
+    buffer: Buffer.from(match[2], "base64"),
+  };
+}
+
+function extensionFromMimeType(mimeType) {
+  const extensions = {
+    "image/png": ".png",
+    "image/jpeg": ".jpg",
+    "image/jpg": ".jpg",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+    "image/bmp": ".bmp",
+  };
+
+  return extensions[mimeType] || ".png";
+}
+
+function imageFilePathFromUrl(imageUrl) {
+  if (!imageUrl || !imageUrl.startsWith("/photos/")) {
+    return null;
+  }
+
+  return path.join(PHOTOS_DIR, path.basename(imageUrl));
+}
+
+async function saveImage(imageValue) {
+  if (!imageValue || !imageValue.startsWith("data:image/")) {
+    return imageValue || "";
+  }
+
+  const { mimeType, buffer } = parseDataUrl(imageValue);
+  const filename = `${randomUUID()}${extensionFromMimeType(mimeType)}`;
+  const filePath = path.join(PHOTOS_DIR, filename);
+
+  await fs.writeFile(filePath, buffer);
+  return `/photos/${filename}`;
+}
+
+async function deleteImage(imageUrl) {
+  const filePath = imageFilePathFromUrl(imageUrl);
+
+  if (!filePath) {
+    return;
+  }
+
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
 }
 
 async function handleApi(req, res) {
@@ -112,6 +192,7 @@ async function handleApi(req, res) {
     const newCard = {
       id: randomUUID(),
       ...card,
+      image: await saveImage(card.image),
       createdAt: new Date().toISOString(),
     };
 
@@ -137,9 +218,24 @@ async function handleApi(req, res) {
         return sendJson(res, 400, { error: update.error });
       }
 
+      let nextImage = cards[cardIndex].image || "";
+
+      if (update.image !== nextImage) {
+        if (update.image.startsWith("data:image/")) {
+          nextImage = await saveImage(update.image);
+          await deleteImage(cards[cardIndex].image);
+        } else if (!update.image) {
+          await deleteImage(cards[cardIndex].image);
+          nextImage = "";
+        } else {
+          nextImage = update.image;
+        }
+      }
+
       cards[cardIndex] = {
         ...cards[cardIndex],
         ...update,
+        image: nextImage,
       };
 
       await writeCards(cards);
@@ -149,6 +245,7 @@ async function handleApi(req, res) {
     if (req.method === "DELETE") {
       const [removedCard] = cards.splice(cardIndex, 1);
       await writeCards(cards);
+      await deleteImage(removedCard.image);
       return sendJson(res, 200, removedCard);
     }
   }
@@ -158,6 +255,25 @@ async function handleApi(req, res) {
 
 async function serveStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  if (url.pathname.startsWith("/photos/")) {
+    const filePath = path.join(PHOTOS_DIR, path.basename(url.pathname));
+
+    try {
+      const ext = path.extname(filePath);
+      const content = await fs.readFile(filePath);
+      res.writeHead(200, {
+        "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
+      });
+      res.end(content);
+    } catch {
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Not found");
+    }
+
+    return;
+  }
+
   const requestedPath = url.pathname === "/" ? "/index.html" : url.pathname;
   const safePath = path.normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
   const filePath = path.join(PUBLIC_DIR, safePath);

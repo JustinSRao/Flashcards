@@ -26,8 +26,13 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .app-shell {
@@ -91,6 +96,42 @@ textarea {
   display: grid;
   gap: 0.4rem;
   font-weight: 600;
+}
+
+.image-preview {
+  position: relative;
+  width: fit-content;
+  max-width: 120px;
+  margin-bottom: 0.4rem;
+}
+
+.image-preview img {
+  display: block;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 20px rgba(88, 62, 29, 0.1);
+}
+
+.image-remove {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  border-radius: 999px;
+  border: none;
+  background: rgba(45, 36, 24, 0.78);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.image-preview:hover .image-remove {
+  opacity: 1;
 }
 
 input,
@@ -178,6 +219,44 @@ button.danger {
   font-size: 0.85rem;
 }
 
+.card-meta {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.card-image-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.card-image-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border: 1px solid rgba(163, 71, 47, 0.22);
+  border-radius: 0.7rem;
+  overflow: hidden;
+  background: #f7f1e7;
+  box-shadow: 0 8px 18px rgba(88, 62, 29, 0.1);
+  flex-shrink: 0;
+}
+
+.card-image-button:hover {
+  background: #f7f1e7;
+}
+
+.card-image-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .flashcard .answer {
   display: none;
   color: var(--muted);
@@ -194,6 +273,32 @@ button.danger {
 
 .flashcard.revealed .question {
   color: var(--accent-dark);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(45, 36, 24, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.lightbox-image {
+  position: relative;
+  z-index: 1;
+  max-width: min(90vw, 900px);
+  max-height: 85vh;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  background: #fff;
 }
 
 @media (max-width: 700px) {
