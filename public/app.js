@@ -18,7 +18,8 @@ function setStatus(message) {
 }
 
 function resetForm() {
-  form.reset();
+  questionInput.value = "";
+  answerInput.value = "";
   cardIdInput.value = "";
   saveButton.textContent = "Save card";
 }
