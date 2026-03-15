@@ -183,6 +183,11 @@ button.danger {
   color: var(--muted);
 }
 
+.flashcard .question,
+.flashcard .answer {
+  white-space: pre-wrap;
+}
+
 .flashcard.revealed .answer {
   display: block;
 }
