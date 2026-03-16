@@ -217,6 +217,7 @@ button:disabled {
 }
 
 .flashcard {
+  position: relative;
   min-height: 220px;
   border-radius: 20px;
   padding: 1rem;
@@ -292,6 +293,17 @@ button:disabled {
 .flashcard .card-buttons {
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.note-indicator {
+  position: absolute;
+  left: 0.9rem;
+  bottom: 0.55rem;
+  color: #bf1e2d;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .icon-button {

@@ -200,6 +200,7 @@ function renderCards() {
     const deckEl = fragment.querySelector(".deck");
     const questionEl = fragment.querySelector(".question");
     const answerEl = fragment.querySelector(".answer");
+    const noteIndicator = fragment.querySelector(".note-indicator");
     const editButton = fragment.querySelector(".edit-button");
     const noteButton = fragment.querySelector(".note-button");
     const deleteButton = fragment.querySelector(".delete-button");
@@ -209,6 +210,10 @@ function renderCards() {
     deckEl.textContent = card.deck;
     questionEl.textContent = card.question;
     answerEl.textContent = card.answer;
+
+    if (card.noteExists) {
+      noteIndicator.classList.remove("hidden");
+    }
 
     if (card.image) {
       imageThumb.src = card.image;
@@ -274,6 +279,17 @@ async function persistNote(cardId, note) {
   noteCache.set(cardId, data.note || "");
 }
 
+function updateCardNoteState(cardId, note) {
+  const card = cards.find((item) => item.id === cardId);
+
+  if (!card) {
+    return;
+  }
+
+  card.noteExists = Boolean(note.trim());
+  renderCards();
+}
+
 async function closeActiveNote({ save } = { save: true }) {
   if (!activeNote) {
     return;
@@ -285,6 +301,7 @@ async function closeActiveNote({ save } = { save: true }) {
   if (save) {
     try {
       await persistNote(cardId, nextValue);
+      updateCardNoteState(cardId, nextValue);
       setStatus("Note saved.");
     } catch (error) {
       setStatus(error.message);

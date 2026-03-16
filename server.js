@@ -58,6 +58,18 @@ async function readCards() {
   return JSON.parse(raw);
 }
 
+async function readCardsWithNoteState() {
+  const cards = await readCards();
+  const cardsWithNotes = await Promise.all(
+    cards.map(async (card) => ({
+      ...card,
+      noteExists: Boolean((await readNote(card.id)).trim()),
+    }))
+  );
+
+  return cardsWithNotes;
+}
+
 async function writeCards(cards) {
   await fs.writeFile(CARDS_FILE, JSON.stringify(cards, null, 2));
 }
@@ -221,7 +233,7 @@ async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (url.pathname === "/api/cards" && req.method === "GET") {
-    const cards = await readCards();
+    const cards = await readCardsWithNoteState();
     return sendJson(res, 200, cards);
   }
 
