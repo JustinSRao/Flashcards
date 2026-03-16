@@ -80,6 +80,23 @@ select {
   gap: 1rem;
 }
 
+.toolbar-controls,
+.bulk-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.toolbar-controls {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.bulk-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 .filters {
   display: flex;
   gap: 0.75rem;
@@ -183,6 +200,11 @@ button.danger {
   background: var(--danger);
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .status,
 .empty {
   color: var(--muted);
@@ -267,6 +289,22 @@ button.danger {
   white-space: pre-wrap;
 }
 
+.flashcard .card-buttons {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.icon-button {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .flashcard.revealed .answer {
   display: block;
 }
@@ -301,17 +339,127 @@ button.danger {
   background: #fff;
 }
 
+.note-modal {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 720px);
+  max-height: 84vh;
+  overflow: hidden;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(106, 67, 42, 0.18), rgba(106, 67, 42, 0.05)),
+    linear-gradient(180deg, #fbf4e5, #f6eddc);
+  box-shadow: 0 28px 80px rgba(29, 20, 10, 0.34);
+  border: 1px solid rgba(125, 87, 47, 0.2);
+}
+
+.note-modal-header {
+  padding: 1rem 1.4rem 0.75rem;
+  border-bottom: 1px solid rgba(125, 87, 47, 0.14);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.08));
+}
+
+.note-modal-eyebrow {
+  margin: 0;
+  color: #7d4e32;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.76rem;
+}
+
+.note-paper {
+  position: relative;
+  padding: 1.35rem 1.35rem 1.35rem 2.9rem;
+  background:
+    linear-gradient(90deg, transparent 0 2.1rem, rgba(196, 86, 86, 0.45) 2.1rem 2.18rem, transparent 2.18rem 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(253, 250, 244, 0.92));
+}
+
+.note-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2.05rem,
+      rgba(95, 140, 198, 0.34) 2.05rem,
+      rgba(95, 140, 198, 0.34) 2.15rem
+    );
+  pointer-events: none;
+}
+
+.note-textarea {
+  position: relative;
+  z-index: 1;
+  min-height: min(58vh, 34rem);
+  padding: 0.15rem 0.25rem 0.15rem 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #3b2f24;
+  line-height: 2.15rem;
+  resize: none;
+}
+
+.note-textarea:focus {
+  outline: none;
+}
+
+.confirm-modal {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 420px);
+  padding: 1.35rem;
+  border-radius: 22px;
+  border: 1px solid rgba(125, 87, 47, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 238, 224, 0.94));
+  box-shadow: 0 26px 70px rgba(29, 20, 10, 0.34);
+}
+
+.confirm-title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.confirm-message {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
 @media (max-width: 700px) {
   .actions,
   .toolbar,
   .flashcard-header,
   .card-buttons,
-  .filters {
+  .filters,
+  .toolbar-controls,
+  .bulk-actions,
+  .confirm-actions {
     flex-direction: column;
     align-items: stretch;
   }
 
   .app-shell {
     width: min(100% - 1rem, 1100px);
+  }
+
+  .note-modal {
+    width: min(96vw, 720px);
+  }
+
+  .note-paper {
+    padding: 1rem 1rem 1rem 2.3rem;
   }
 }

@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
 const DATA_DIR = path.join(ROOT_DIR, "data");
+const NOTES_DIR = path.join(DATA_DIR, "notes");
 const PHOTOS_DIR = path.join(DATA_DIR, "photos");
 const CARDS_FILE = path.join(DATA_DIR, "flashcards.json");
 
@@ -25,6 +26,7 @@ const MIME_TYPES = {
 
 async function ensureStorage() {
   await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.mkdir(NOTES_DIR, { recursive: true });
   await fs.mkdir(PHOTOS_DIR, { recursive: true });
 
   try {
@@ -58,6 +60,36 @@ async function readCards() {
 
 async function writeCards(cards) {
   await fs.writeFile(CARDS_FILE, JSON.stringify(cards, null, 2));
+}
+
+function noteFilePath(cardId) {
+  return path.join(NOTES_DIR, `${cardId}.txt`);
+}
+
+async function readNote(cardId) {
+  try {
+    return await fs.readFile(noteFilePath(cardId), "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return "";
+    }
+
+    throw error;
+  }
+}
+
+async function writeNote(cardId, note) {
+  await fs.writeFile(noteFilePath(cardId), note, "utf8");
+}
+
+async function deleteNote(cardId) {
+  try {
+    await fs.unlink(noteFilePath(cardId));
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
 }
 
 function sendJson(res, statusCode, payload) {
@@ -107,6 +139,10 @@ function sanitizeCard(input) {
   }
 
   return { question, answer, deck, image };
+}
+
+function sanitizeNote(input) {
+  return typeof input.note === "string" ? input.note : String(input.note || "");
 }
 
 function parseDataUrl(dataUrl) {
@@ -172,6 +208,15 @@ async function deleteImage(imageUrl) {
   }
 }
 
+async function deleteCardAssets(card) {
+  await deleteImage(card.image);
+  await deleteNote(card.id);
+}
+
+async function removeCards(cardsToRemove) {
+  await Promise.all(cardsToRemove.map((card) => deleteCardAssets(card)));
+}
+
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
@@ -201,13 +246,52 @@ async function handleApi(req, res) {
     return sendJson(res, 201, newCard);
   }
 
+  if (url.pathname === "/api/cards" && req.method === "DELETE") {
+    const deck = (url.searchParams.get("deck") || "").trim();
+    const cards = await readCards();
+    const removedCards = deck
+      ? cards.filter((card) => card.deck === deck)
+      : [...cards];
+
+    if (deck && removedCards.length === 0) {
+      return sendJson(res, 404, { error: "Deck not found." });
+    }
+
+    const remainingCards = deck
+      ? cards.filter((card) => card.deck !== deck)
+      : [];
+
+    await writeCards(remainingCards);
+    await removeCards(removedCards);
+
+    return sendJson(res, 200, {
+      deletedCount: removedCards.length,
+      deck,
+    });
+  }
+
   if (url.pathname.startsWith("/api/cards/")) {
-    const cardId = url.pathname.split("/").pop();
+    const segments = url.pathname.split("/").filter(Boolean);
+    const cardId = segments[2];
     const cards = await readCards();
     const cardIndex = cards.findIndex((card) => card.id === cardId);
 
     if (cardIndex === -1) {
       return sendJson(res, 404, { error: "Card not found." });
+    }
+
+    if (segments[3] === "note") {
+      if (req.method === "GET") {
+        const note = await readNote(cardId);
+        return sendJson(res, 200, { note });
+      }
+
+      if (req.method === "PUT") {
+        const payload = await parseBody(req);
+        const note = sanitizeNote(payload);
+        await writeNote(cardId, note);
+        return sendJson(res, 200, { note });
+      }
     }
 
     if (req.method === "PUT") {
@@ -245,7 +329,7 @@ async function handleApi(req, res) {
     if (req.method === "DELETE") {
       const [removedCard] = cards.splice(cardIndex, 1);
       await writeCards(cards);
-      await deleteImage(removedCard.image);
+      await deleteCardAssets(removedCard);
       return sendJson(res, 200, removedCard);
     }
   }

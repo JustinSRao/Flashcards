@@ -66,11 +66,17 @@
       <section class="panel">
         <div class="toolbar">
           <h2>Your cards</h2>
-          <div class="filters">
-            <input id="search" type="search" placeholder="Search cards" />
-            <select id="deck-filter" aria-label="Filter by deck">
-              <option value="">All decks</option>
-            </select>
+          <div class="toolbar-controls">
+            <div class="filters">
+              <input id="search" type="search" placeholder="Search cards" />
+              <select id="deck-filter" aria-label="Filter by deck">
+                <option value="">All decks</option>
+              </select>
+            </div>
+            <div class="bulk-actions">
+              <button type="button" id="delete-deck-button" class="secondary">Delete deck</button>
+              <button type="button" id="delete-all-button" class="danger">Delete all</button>
+            </div>
           </div>
         </div>
         <p id="status" class="status"></p>
@@ -94,8 +100,15 @@
             </div>
           </div>
           <div class="card-buttons">
-            <button class="secondary edit-button">Edit</button>
-            <button class="danger delete-button">Delete</button>
+            <button class="secondary icon-button edit-button" aria-label="Edit flashcard" title="Edit">
+              ✏️
+            </button>
+            <button class="secondary icon-button note-button" aria-label="Open flashcard note" title="Note">
+              📝
+            </button>
+            <button class="danger icon-button delete-button" aria-label="Delete flashcard" title="Delete">
+              🗑️
+            </button>
           </div>
         </div>
         <h3 class="question"></h3>
@@ -103,9 +116,38 @@
       </article>
     </template>
 
+    <div id="note-lightbox" class="lightbox hidden" aria-hidden="true">
+      <div class="lightbox-backdrop"></div>
+      <section class="note-modal" aria-label="Flashcard note">
+        <div class="note-modal-header">
+          <p class="note-modal-eyebrow">Flashcard Note</p>
+        </div>
+        <div class="note-paper">
+          <textarea
+            id="note-textarea"
+            class="note-textarea"
+            rows="14"
+            placeholder="Write anything for this flashcard."
+          ></textarea>
+        </div>
+      </section>
+    </div>
+
     <div id="image-lightbox" class="lightbox hidden" aria-hidden="true">
       <div class="lightbox-backdrop"></div>
       <img id="lightbox-image" class="lightbox-image" alt="Expanded flashcard attachment" />
+    </div>
+
+    <div id="confirm-lightbox" class="lightbox hidden" aria-hidden="true">
+      <div class="lightbox-backdrop"></div>
+      <section class="confirm-modal" aria-label="Confirm delete">
+        <p id="confirm-title" class="confirm-title">Confirm delete</p>
+        <p id="confirm-message" class="confirm-message"></p>
+        <div class="confirm-actions">
+          <button type="button" id="confirm-cancel" class="secondary">Cancel</button>
+          <button type="button" id="confirm-delete" class="danger">Delete</button>
+        </div>
+      </section>
     </div>
 
     <script src="/app.js"></script>
