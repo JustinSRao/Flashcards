@@ -273,7 +273,3 @@ This is a minimal project with no build step. To modify the app:
 
 - Refresh the page
 - Check the terminal running `npm start` for server errors
-
-## License
-
-MIT
