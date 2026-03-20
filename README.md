@@ -1,30 +1,38 @@
-# Flashcard App
+# Flashcards
 
-A lightweight flashcard study app built with plain Node.js, HTML, CSS, and browser-side JavaScript. The app stores everything locally on disk, so it can be cloned, started, and used without a database or external services.
+Flashcards is now structured to run in two modes with the same UI and feature set:
 
-It supports creating, editing, searching, filtering, and deleting flashcards, attaching pasted images, and keeping a separate note for each card. Notes and images are stored alongside the card data inside the repository's `data/` directory.
+- Windows browser mode: the existing Node.js server continues to serve the app and store data in the repository `data/` folder.
+- Apple app mode: the frontend can be packaged with Capacitor for iPhone, iPad, and Mac, and it stores data inside the app sandbox so it does not require Node on-device.
 
-## Features
+This keeps local Windows development simple while making the project portable to iOS, iPadOS, and macOS through a single Apple-native shell.
 
-- Create and edit flashcards with a deck, question, answer, and optional image
-- Paste images directly into the question field
-- Reveal answers by clicking a card
-- Search cards by deck, question, or answer text
-- Filter cards by deck
-- Open a per-card note in a centered modal
-- Autosave notes when clicking outside the note modal
-- View attached images in a lightbox overlay
-- Delete a single card with confirmation
-- Delete all cards in a selected deck with confirmation
-- Delete all cards in the app with confirmation
-- Store all data locally in JSON and text files
+## What Changed
 
-## Tech Stack
+- Preserved the current browser workflow with `server.js`
+- Refactored the frontend to support two storage backends
+- Added a native-safe storage path for Apple builds
+- Added image selection from the device in addition to paste support
+- Added Capacitor project configuration for Apple packaging
+- Updated package scripts for Apple sync/open workflows
 
-- Node.js built-in `http`, `fs/promises`, `path`, and `crypto`
-- No frontend framework
-- No database
-- No npm dependencies
+## Current Architecture
+
+### Browser Mode
+
+- Start with `npm start`
+- Runs through `server.js`
+- Uses:
+  - `data/flashcards.json`
+  - `data/notes/`
+  - `data/photos/`
+
+### Apple App Mode
+
+- Package the `public/` directory with Capacitor
+- No Node server runs on the device
+- Cards, notes, and image data are stored in the app's local WebView storage
+- Same UI and client behavior as browser mode
 
 ## Project Structure
 
@@ -38,6 +46,7 @@ It supports creating, editing, searching, filtering, and deleting flashcards, at
 |   |-- app.js
 |   |-- index.html
 |   |-- styles.css
+|-- capacitor.config.json
 |-- server.js
 |-- package.json
 |-- README.md
@@ -45,231 +54,153 @@ It supports creating, editing, searching, filtering, and deleting flashcards, at
 
 ## Requirements
 
+### For Windows Development
+
 - Node.js 18+ recommended
+- npm 9+ recommended
 
-The project does not rely on third-party packages, so there is no dependency installation step beyond cloning the repository.
+### For Apple Packaging and Store Submission
 
-## Getting Started
+Apple builds still require Apple tooling. As of March 20, 2026, you need:
 
-### 1. Clone the repository
+- A Mac
+- Xcode
+- An Apple Developer account
+
+You cannot build, sign, archive, or submit iPhone, iPad, or Mac App Store binaries from Windows alone.
+
+## Windows Development Workflow
+
+### 1. Install dependencies
 
 ```bash
-git clone <your-repo-url>
-cd "ATSC 113"
+npm install
 ```
 
-### 2. Start the app
+### 2. Start the browser build
 
 ```bash
 npm start
 ```
 
-By default, the server runs at:
+The app runs at:
 
 ```text
 http://localhost:3000
 ```
 
-### 3. Open the app in your browser
+In this mode, your flashcards continue to use the repository-backed `data/` folder.
 
-Visit `http://localhost:3000` after the server starts.
+## Apple Platform Setup
 
-## Configuration
+This repo is prepared for Capacitor-based Apple packaging. After pulling the latest changes onto a Mac:
 
-The app uses the following environment variable:
-
-- `PORT`
-  Sets the HTTP port for the server. Defaults to `3000`.
-
-Example:
+### 1. Install dependencies
 
 ```bash
-PORT=4000 npm start
+npm install
 ```
 
-On PowerShell:
+### 2. Generate the iOS project
 
-```powershell
-$env:PORT=4000
-npm start
+```bash
+npx cap add ios
 ```
 
-## How Data Is Stored
+You only need to run `npx cap add ios` once.
 
-This app is file-backed and writes data directly into the repository.
+### 3. Sync web assets into the native shell
 
-### Flashcards
-
-Flashcards are stored in:
-
-```text
-data/flashcards.json
+```bash
+npm run cap:sync
 ```
 
-Each card includes:
+### 4. Open the native project in Xcode
 
-- `id`
-- `deck`
-- `question`
-- `answer`
-- `image`
-- `createdAt`
-
-### Notes
-
-Each flashcard note is stored as its own text file in:
-
-```text
-data/notes/
+```bash
+npm run cap:open:ios
 ```
 
-Each note filename matches the flashcard id:
+### 5. Enable the Apple targets you want in Xcode
 
-```text
-data/notes/<card-id>.txt
-```
+From the iOS project in Xcode:
 
-### Images
+- Build for iPhone
+- Build for iPad
+- Enable Mac Catalyst if you want a macOS App Store build from the same codebase
 
-Pasted card images are written to:
+This gives you one Apple project that can target:
 
-```text
-data/photos/
-```
+- iOS
+- iPadOS
+- macOS via Mac Catalyst
 
-The flashcard stores the image path, and the server serves those files at `/photos/...`.
+## Publishing Path
 
-## First Run Behavior
+### iPhone and iPad
 
-On first start, the server creates the following directories if they do not already exist:
+Use Xcode Archive and App Store Connect submission from the iOS target.
 
-- `data/`
-- `data/notes/`
-- `data/photos/`
+### Mac
 
-If `data/flashcards.json` does not exist, the app seeds it with a small sample set of flashcards.
+Use Mac Catalyst in Xcode, then archive and submit the Mac build through App Store Connect.
 
-## Usage Guide
+## Available Scripts
 
-### Create a flashcard
+- `npm start`
+  Starts the Windows/browser development server.
 
-1. Enter a deck name.
-2. Enter a question.
-3. Enter an answer.
-4. Optionally paste an image into the question field.
-5. Click `Save card`.
+- `npm run serve:web`
+  Same as `npm start`.
 
-### Edit a flashcard
+- `npm run cap:copy`
+  Copies the web assets into the iOS wrapper.
 
-1. Click the edit icon on a card.
-2. Update the fields in the form.
-3. Click `Update card`.
+- `npm run cap:sync`
+  Syncs the Capacitor iOS project.
 
-### View an answer
+- `npm run cap:open:ios`
+  Opens the iOS project in Xcode.
 
-Click a flashcard to toggle its revealed state.
+## Data Behavior
 
-### Search and filter
+### Browser Mode
 
-- Use the search box to search across deck, question, and answer text.
-- Use the deck dropdown to limit the visible cards to one deck.
+- Cards are stored in `data/flashcards.json`
+- Notes are stored in `data/notes/`
+- Pasted images are stored in `data/photos/`
 
-### Add or edit a note
+### Apple App Mode
 
-1. Click the note icon on a card.
-2. Type into the lined notepad modal.
-3. Click outside the modal to autosave and close it.
+- Cards are stored inside the app sandbox
+- Notes are stored inside the app sandbox
+- Images are stored inside the app sandbox
+- Data does not depend on the repository's `data/` directory
 
-### View an attached image
+## Feature Parity
 
-Click the image thumbnail on a flashcard to open it in a centered lightbox.
+The app still supports:
 
-### Delete actions
+- Create and edit flashcards
+- Search cards
+- Filter by deck
+- Reveal answers
+- Save per-card notes
+- Delete one card
+- Delete one deck
+- Delete all cards
+- Attach images
+- View images in a lightbox
 
-All delete actions require confirmation.
-
-- Delete one flashcard from its card controls
-- Delete all flashcards in the currently selected deck
-- Delete all flashcards in the entire app
-
-Deleting a card also deletes:
-
-- its note file
-- its saved image, if present
-
-## API Overview
-
-The app serves a small HTTP API used by the frontend.
-
-### Cards
-
-- `GET /api/cards`
-  Returns all flashcards.
-
-- `POST /api/cards`
-  Creates a new flashcard.
-
-- `PUT /api/cards/:id`
-  Updates an existing flashcard.
-
-- `DELETE /api/cards/:id`
-  Deletes a single flashcard and its related assets.
-
-- `DELETE /api/cards`
-  Deletes all flashcards.
-
-- `DELETE /api/cards?deck=<deck-name>`
-  Deletes all flashcards in the specified deck.
-
-### Notes
-
-- `GET /api/cards/:id/note`
-  Returns the note for a flashcard.
-
-- `PUT /api/cards/:id/note`
-  Saves the note for a flashcard.
-
-### Static Assets
-
-- `/`
-  Serves the app UI
-
-- `/photos/<filename>`
-  Serves saved pasted images
-
-## Notes on Behavior
-
-- Question and answer are required when saving a card.
-- Deck defaults to `General` if left empty.
-- Image uploads are paste-only in the current UI.
-- Notes are saved independently from flashcards.
-- Deleting a card or bulk deleting cards removes associated notes and images from disk.
-- The app is designed for local, single-user use and does not include authentication.
+The only architectural difference is where data lives depending on runtime.
 
 ## Development Notes
 
-This is a minimal project with no build step. To modify the app:
+- `public/app.js` now selects its storage backend automatically
+- In browser mode it talks to the existing Node API
+- In Apple app mode it uses native-safe local storage
+- `server.js` remains the Windows development server
 
-- Update `server.js` for server/API behavior
-- Update `public/index.html` for markup
-- Update `public/app.js` for client behavior
-- Update `public/styles.css` for presentation
+## Important Limitation
 
-## Troubleshooting
-
-### The app does not start
-
-- Confirm Node.js is installed
-- Confirm the chosen port is not already in use
-- Start the app with `npm start`
-
-### Notes or images are missing
-
-- Check that the server has write access to `data/`
-- Confirm `data/notes/` and `data/photos/` exist
-- Verify the flashcard was not deleted, since deletes also remove related assets
-
-### The browser does not show updates
-
-- Refresh the page
-- Check the terminal running `npm start` for server errors
+This repository is now prepared for Apple platforms, but the final native build artifacts and App Store submission steps still must be completed on macOS with Xcode. That limitation is imposed by Apple's toolchain, not by the app code.
