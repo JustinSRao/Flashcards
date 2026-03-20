@@ -203,4 +203,4 @@ The only architectural difference is where data lives depending on runtime.
 
 ## Important Limitation
 
-This repository is now prepared for Apple platforms, but the final native build artifacts and App Store submission steps still must be completed on macOS with Xcode. That limitation is imposed by Apple's toolchain, not by the app code.
+This repository is now prepared for Apple platforms, but the final native build artifacts and App Store submission steps still must be completed on macOS with Xcode. That limitation is imposed by Apple's toolchain, not by the app code. I have not yet worked on this project from an Apple device, so this step is next TODO!
