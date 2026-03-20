@@ -64,6 +64,12 @@ select {
   max-width: 44rem;
 }
 
+.runtime-mode,
+.input-help {
+  margin: 0;
+  color: var(--muted);
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid rgba(199, 186, 163, 0.75);
@@ -113,6 +119,11 @@ select {
   display: grid;
   gap: 0.4rem;
   font-weight: 600;
+}
+
+.image-tools {
+  display: grid;
+  gap: 0.5rem;
 }
 
 .image-preview {
@@ -307,13 +318,13 @@ button:disabled {
 }
 
 .icon-button {
-  min-width: 2.5rem;
+  min-width: 4.5rem;
   min-height: 2.5rem;
-  padding: 0.45rem;
+  padding: 0.45rem 0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1;
 }
 

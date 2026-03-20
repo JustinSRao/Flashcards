@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flashcards</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="app-shell">
@@ -12,9 +12,10 @@
         <p class="eyebrow">Flashcards</p>
         <h1>Study from JSON-backed flashcards.</h1>
         <p class="subcopy">
-          Cards are stored in <code>data/flashcards.json</code> inside this
-          directory.
+          Browser mode uses your local Node data folder. Apple app mode uses
+          on-device app storage so the same UI can ship without a Node server.
         </p>
+        <p id="runtime-mode" class="runtime-mode"></p>
       </section>
 
       <section class="panel">
@@ -28,14 +29,14 @@
           <label>
             Question
             <div id="image-preview" class="image-preview hidden" aria-live="polite">
-              <img id="image-preview-img" alt="Pasted flashcard attachment preview" />
+              <img id="image-preview-img" alt="Flashcard attachment preview" />
               <button
                 type="button"
                 id="remove-image"
                 class="image-remove"
-                aria-label="Remove pasted image"
+                aria-label="Remove attached image"
               >
-                ×
+                x
               </button>
             </div>
             <textarea
@@ -46,6 +47,15 @@
               required
             ></textarea>
           </label>
+          <div class="image-tools">
+            <button type="button" id="select-image-button" class="secondary">
+              Choose image
+            </button>
+            <input id="image-input" type="file" accept="image/*" class="hidden" />
+            <p class="input-help">
+              Paste an image into the question field or choose one from this device.
+            </p>
+          </div>
           <label>
             Answer
             <textarea
@@ -86,7 +96,7 @@
 
     <template id="card-template">
       <article class="flashcard">
-        <span class="note-indicator hidden" aria-hidden="true">-</span>
+        <span class="note-indicator hidden" aria-hidden="true">*</span>
         <div class="flashcard-header">
           <div class="card-meta">
             <span class="deck"></span>
@@ -102,13 +112,13 @@
           </div>
           <div class="card-buttons">
             <button class="secondary icon-button edit-button" aria-label="Edit flashcard" title="Edit">
-              ✏️
+              Edit
             </button>
             <button class="secondary icon-button note-button" aria-label="Open flashcard note" title="Note">
-              📝
+              Note
             </button>
             <button class="danger icon-button delete-button" aria-label="Delete flashcard" title="Delete">
-              🗑️
+              Delete
             </button>
           </div>
         </div>
@@ -151,6 +161,6 @@
       </section>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>

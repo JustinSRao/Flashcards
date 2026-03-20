@@ -1,0 +1,8 @@
+{
+  "appId": "com.justinsrao.flashcards",
+  "appName": "Flashcards",
+  "webDir": "public",
+  "server": {
+    "cleartext": true
+  }
+}
